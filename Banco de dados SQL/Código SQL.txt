@@ -1,0 +1,130 @@
+-- MySQL Workbench Forward Engineering
+
+SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
+SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
+SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';
+
+-- -----------------------------------------------------
+-- Schema projeto_loja
+-- -----------------------------------------------------
+
+-- -----------------------------------------------------
+-- Table `Pessoa`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `Pessoa` (
+  `CPF` VARCHAR(13) NOT NULL,
+  `senha` VARCHAR(14) NOT NULL,
+  `email` VARCHAR(35) NOT NULL,
+  `nome` VARCHAR(15) NOT NULL,
+  `sobrenome` VARCHAR(30) NOT NULL,
+  PRIMARY KEY (`CPF`))
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `Funcionario`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `Funcionario` (
+  `codAdmin` VARCHAR(7) NOT NULL,
+  `Pessoa_CPF` VARCHAR(13) NOT NULL,
+  PRIMARY KEY (`Pessoa_CPF`),
+  CONSTRAINT `fk_Funcionario_Pessoa`
+    FOREIGN KEY (`Pessoa_CPF`)
+    REFERENCES `Pessoa` (`CPF`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `Cliente`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `Cliente` (
+  `Pessoa_CPF` VARCHAR(13) NOT NULL,
+  `numCard` INT NULL,
+  `validade` VARCHAR(7) NULL,
+  `nomeCard` VARCHAR(45) NULL,
+  `codSeg` VARCHAR(3) NULL,
+  PRIMARY KEY (`Pessoa_CPF`),
+  CONSTRAINT `fk_table1_Pessoa1`
+    FOREIGN KEY (`Pessoa_CPF`)
+    REFERENCES `Pessoa` (`CPF`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+use lojita;
+alter table Cliente modify numCard varchar(16);
+
+select * from Cliente join Pessoa where email = 'dkschrute@dundermifflin.com' and Pessoa_CPF = CPF;
+select * from Pedido;
+
+delete from Cliente where  Produto_idProduto = "208";
+
+-- -----------------------------------------------------
+-- Table `Produto`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `Produto` (
+  `idProduto` INT NOT NULL,
+  `nome` VARCHAR(75) NOT NULL,
+  `descricao` VARCHAR(150) NOT NULL,
+  `preco` VARCHAR(12) NOT NULL,
+  `categoria` VARCHAR(12) NOT NULL,
+  `Funcionario_Pessoa_CPF` VARCHAR(13) NOT NULL,
+  PRIMARY KEY (`idProduto`),
+  INDEX `fk_Produto_Funcionario1_idx` (`Funcionario_Pessoa_CPF` ASC) VISIBLE,
+  CONSTRAINT `fk_Produto_Funcionario1`
+    FOREIGN KEY (`Funcionario_Pessoa_CPF`)
+    REFERENCES `Funcionario` (`Pessoa_CPF`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `Endereco`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `Endereco` (
+  `CEP` VARCHAR(10) NOT NULL,
+  `Rua` VARCHAR(30) NOT NULL,
+  `Bairro` VARCHAR(30) NOT NULL,
+  `numero` VARCHAR(5) NOT NULL,
+  `complemento` VARCHAR(15) NULL,
+  `cidade` VARCHAR(30) NOT NULL,
+  `estado` VARCHAR(16) NOT NULL,
+  `Cliente_Pessoa_CPF` VARCHAR(13) NOT NULL,
+  INDEX `fk_Endereco_Cliente1_idx` (`Cliente_Pessoa_CPF` ASC) VISIBLE,
+  CONSTRAINT `fk_Endereco_Cliente1`
+    FOREIGN KEY (`Cliente_Pessoa_CPF`)
+    REFERENCES `Cliente` (`Pessoa_CPF`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `Pedido`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `Pedido` (
+  `numPedido` VARCHAR(12),
+  `Cliente_Pessoa_CPF` VARCHAR(13) NOT NULL,
+  `Produto_idProduto` INT NOT NULL,
+  `codOperacao` INT NOT NULL AUTO_INCREMENT,
+  INDEX `fk_Pedido_Cliente1_idx` (`Cliente_Pessoa_CPF` ASC) VISIBLE,
+  INDEX `fk_Pedido_Produto1_idx` (`Produto_idProduto` ASC) VISIBLE,
+  PRIMARY KEY (`codOperacao`),
+  CONSTRAINT `fk_Pedido_Cliente1`
+    FOREIGN KEY (`Cliente_Pessoa_CPF`)
+    REFERENCES `Cliente` (`Pessoa_CPF`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_Pedido_Produto1`
+    FOREIGN KEY (`Produto_idProduto`)
+    REFERENCES `Produto` (`idProduto`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+SET SQL_MODE=@OLD_SQL_MODE;
+SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
+SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
